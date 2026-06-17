@@ -1,0 +1,804 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --nb:#0f172a;--nb2:#1a2f5a;--nb3:#0d4f6b;
+  --bl:#2563eb;--bll:#eff6ff;--bld:#1e40af;
+  --tl:#0d9488;--tll:#f0fdfa;--tlm:#5eead4;
+  --pu:#7c3aed;--pul:#f5f3ff;
+  --bd:#e2e8f0;--bg:#f0f2f7;--wh:#fff;--s2:#f7f9fc;
+  --t1:#0f172a;--t2:#475569;--t3:#94a3b8;
+  --re:#ef4444;--am:#f59e0b;--gr:#10b981;
+  --r:12px;--r2:8px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f7;color:#0f172a;font-size:13px;line-height:1.5}
+
+/* ── APP SHELL ── */
+.app{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sb{width:200px;min-height:100vh;background:linear-gradient(160deg,#0f172a 0%,#1a2f5a 55%,#0d4f6b 100%);display:flex;flex-direction:column;flex-shrink:0}
+.sb-logo{display:flex;align-items:center;gap:9px;padding:18px 14px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo-sq{width:32px;height:32px;background:linear-gradient(135deg,#2563eb,#0d9488);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0}
+.logo-txt{line-height:1.1}
+.logo-main{display:block;font-size:13px;font-weight:700;color:#fff;letter-spacing:-.01em}
+.logo-sub{display:block;font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:.1em;text-transform:uppercase}
+.sb-nav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px}
+
+/* NAV ITEM — interactive sidebar buttons */
+.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:6px;color:rgba(255,255,255,0.45);font-size:12px;font-weight:500;cursor:pointer;transition:background .18s,color .18s;user-select:none;border:0.5px solid transparent}
+.ni i{font-size:14px;flex-shrink:0;transition:color .18s}
+.ni:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.88)}
+.ni.active{background:linear-gradient(90deg,rgba(37,99,235,0.32),rgba(13,148,136,0.18));color:#fff;border-color:rgba(255,255,255,0.1)}
+
+.sb-foot{padding:10px 14px;border-top:1px solid rgba(255,255,255,0.07)}
+.sb-tag{display:flex;align-items:center;gap:6px;font-size:10px;color:rgba(255,255,255,0.3);font-family:monospace}
+.pulse{width:5px;height:5px;background:#5eead4;border-radius:50%;flex-shrink:0;animation:pu 2s infinite}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── MAIN AREA ── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+
+/* ── PAGE SECTION — fade + slide transitions ── */
+.page{display:none;padding:20px 22px 36px;flex-direction:column;gap:18px;opacity:0;transform:translateY(10px);transition:opacity .28s ease,transform .28s ease}
+.page.visible{display:flex;opacity:1;transform:translateY(0)}
+
+/* topbar */
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.pg-t{font-size:20px;font-weight:700;color:var(--t1);letter-spacing:-.03em}
+.pg-s{font-size:11px;color:var(--t3);margin-top:1px}
+.abadge{background:linear-gradient(135deg,#1e40af,#2563eb,#0d9488);color:#fff;padding:5px 12px;border-radius:999px;font-size:10px;font-weight:600;font-family:monospace;letter-spacing:.04em}
+
+/* score cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{background:var(--wh);border-radius:var(--r);border:1px solid var(--bd);padding:16px;display:flex;flex-direction:column;align-items:center;gap:10px;transition:transform .18s}
+.card:hover{transform:translateY(-2px)}
+.ch{width:100%;display:flex;align-items:center;justify-content:space-between}
+.cl{font-size:9px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.06em}
+.ci{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.ci i{font-size:13px}
+.ci-b{background:#eff6ff;color:#2563eb}
+.ci-t{background:#f0fdfa;color:#0d9488}
+.ci-p{background:#f5f3ff;color:#7c3aed}
+
+/* meter */
+.meter{position:relative;width:84px;height:84px}
+.meter svg{width:100%;height:100%;transform:rotate(-90deg)}
+.mbg{fill:none;stroke:#e2e8f0;stroke-width:8}
+.mf{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:263;stroke-dashoffset:263;transition:stroke-dashoffset .95s cubic-bezier(.4,0,.2,1)}
+.mv{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:monospace;color:var(--t1)}
+.mv-sm{font-size:11px}
+.stag{display:inline-block;font-size:10px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--bg);color:var(--t3)}
+.stag-low{background:#fef2f2;color:#ef4444}
+.stag-mod{background:#fffbeb;color:#f59e0b}
+.stag-hi{background:#fef2f2;color:#ef4444}
+.stag-done{background:#f0fdfa;color:#0d9488}
+
+/* formula bar */
+.formula{background:var(--wh);border-radius:var(--r);border:1px solid var(--bd);padding:12px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.f-badge{background:#eff6ff;color:#1e40af;font-size:10px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid rgba(37,99,235,0.2);white-space:nowrap}
+.f-eq{font-family:monospace;font-size:11px;color:var(--t2)}
+.f-eq b{color:#2563eb;font-weight:700}
+
+/* section header */
+.sec-t{font-size:14px;font-weight:700;color:var(--t1);letter-spacing:-.02em}
+.sec-s{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* compare panels */
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.panel{background:var(--wh);border-radius:var(--r);border:1px solid var(--bd);overflow:hidden;transition:border-color .15s}
+.panel:focus-within{border-color:#2563eb}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--bd);background:var(--s2)}
+.plbl{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--t2)}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-b{background:#2563eb}
+.dot-t{background:#0d9488}
+.upbtn{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#2563eb;padding:3px 8px;border-radius:5px;border:1px solid rgba(37,99,235,0.25);background:#eff6ff;cursor:pointer;transition:all .15s}
+.upbtn:hover{background:#2563eb;color:#fff}
+.upbtn i{font-size:11px}
+textarea{display:block;width:100%;height:130px;padding:10px 12px;font-family:monospace;font-size:11.5px;line-height:1.65;color:var(--t1);background:var(--wh);border:none;outline:none;resize:none}
+.pmeta{display:flex;gap:12px;padding:6px 12px;background:var(--s2);border-top:1px solid var(--bd);font-size:10px;color:var(--t3)}
+.pmeta b{color:var(--t2);font-family:monospace}
+
+/* action buttons */
+.acts{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.btn-check{display:flex;align-items:center;gap:7px;padding:10px 28px;background:linear-gradient(135deg,#1e40af,#2563eb,#0d9488);color:#fff;border:none;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-check:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.btn-check i{font-size:15px}
+.btn-clear{padding:10px 20px;background:transparent;color:var(--t3);border:1px solid var(--bd);border-radius:999px;font-size:12px;cursor:pointer;transition:all .15s}
+.btn-clear:hover{color:#ef4444;border-color:#ef4444}
+
+/* results grid */
+.rg{display:grid;grid-template-columns:240px 1fr;gap:12px}
+.rc{background:var(--wh);border-radius:var(--r);border:1px solid var(--bd);padding:16px}
+.rc-dark{background:linear-gradient(155deg,#0f172a,#1a2f5a);border:none;color:#fff}
+.bscore{font-size:42px;font-weight:700;font-family:monospace;letter-spacing:-.04em;color:#fff;text-align:center;line-height:1}
+.bsub{font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;text-align:center;margin-top:3px}
+.mbadge{display:inline-block;margin-top:8px;padding:4px 12px;border-radius:999px;font-size:10px;font-weight:600;border:1px solid rgba(255,255,255,.12);color:#fff;background:rgba(255,255,255,.09)}
+.mbadge-low{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4);color:#fca5a5}
+.mbadge-mod{background:rgba(245,158,11,.2);border-color:rgba(245,158,11,.4);color:#fcd34d}
+.mbadge-hi{background:rgba(239,68,68,.25);border-color:rgba(239,68,68,.5);color:#f87171}
+.rstats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
+.rs{background:rgba(255,255,255,.06);border-radius:6px;padding:8px 10px;border:1px solid rgba(255,255,255,.07)}
+.rs-l{display:block;font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.rs-v{display:block;font-size:14px;font-weight:700;font-family:monospace;color:#fff}
+.rc-title{font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.lcs-box{background:var(--s2);border-radius:6px;padding:10px 12px;border:1px solid var(--bd);font-family:monospace;font-size:11px;line-height:1.7;color:var(--t1);max-height:110px;overflow-y:auto;word-break:break-all}
+.lcs-meta{font-size:10px;color:var(--t3);margin-top:6px;font-family:monospace}
+
+/* highlight section */
+.hlp{background:var(--wh);border-radius:var(--r);border:1px solid var(--bd);padding:16px}
+.hg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.hbox{border-radius:6px;border:1px solid var(--bd);overflow:hidden}
+.hlbl{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--s2);border-bottom:1px solid var(--bd);font-size:10px;font-weight:600;color:var(--t2)}
+.hcontent{padding:10px;font-family:monospace;font-size:11px;line-height:1.75;color:var(--t1);min-height:60px;max-height:130px;overflow-y:auto;word-break:break-word}
+.tok-match{background:rgba(13,148,136,.17);color:#0a6660;border-radius:3px;padding:1px 2px;font-weight:600}
+.legend{display:flex;gap:14px}
+.leg{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--t2)}
+.ldot{width:8px;height:8px;border-radius:2px}
+.ldot-m{background:rgba(13,148,136,.3);border:1.5px solid #0d9488}
+.ldot-u{background:#f0f2f7;border:1.5px solid #e2e8f0}
+
+/* word/char stat row */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat-card{background:var(--wh);border-radius:var(--r2);border:1px solid var(--bd);padding:12px 14px}
+.stat-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.stat-val{font-size:18px;font-weight:700;font-family:monospace;color:var(--t1)}
+.stat-sub{font-size:10px;color:var(--t3);margin-top:2px}
+
+/* ── SETTINGS PAGE ── */
+.settings-wrap{display:flex;flex-direction:column;gap:16px}
+.settings-header{background:linear-gradient(135deg,#0f172a,#1a2f5a);border-radius:var(--r);padding:20px 22px;color:#fff}
+.settings-title{font-size:16px;font-weight:700;margin-bottom:3px}
+.settings-sub{font-size:11px;color:rgba(255,255,255,.45)}
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.member-card{background:var(--wh);border-radius:var(--r);border:1px solid var(--bd);padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;transition:transform .18s}
+.member-card:hover{transform:translateY(-2px)}
+.avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#fff;flex-shrink:0}
+.av-blue{background:linear-gradient(135deg,#2563eb,#1e40af)}
+.av-teal{background:linear-gradient(135deg,#0d9488,#0f6e56)}
+.member-name{font-size:14px;font-weight:700;color:var(--t1)}
+.member-role{font-size:11px;color:var(--t3);margin-top:1px}
+.member-badge{background:#eff6ff;color:#1e40af;font-size:10px;font-weight:600;padding:4px 12px;border-radius:999px;border:1px solid rgba(37,99,235,0.2);font-family:monospace}
+.info-rows{width:100%;display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--s2);border-radius:6px;border:1px solid var(--bd)}
+.info-lbl{font-size:10px;color:var(--t3)}
+.info-val{font-size:11px;font-weight:600;color:var(--t2);font-family:monospace}
+.project-card{background:var(--wh);border-radius:var(--r);border:1px solid var(--bd);padding:16px}
+.proj-title{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.proj-title i{font-size:14px;color:#2563eb}
+.proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.proj-item{background:var(--s2);border-radius:6px;padding:8px 10px;border:1px solid var(--bd)}
+.proj-key{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.proj-val{font-size:11px;font-weight:600;color:var(--t2)}
+
+/* footer */
+.foot{border-top:1px solid var(--bd);padding:12px 22px;text-align:center;font-size:10px;color:var(--t3)}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+</style>
+
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">HITMS Smart Text Similarity Checker — interactive dashboard with sidebar navigation, compare text, reports, and settings pages</h2>
+
+<div class="app">
+
+<!-- ═══════════════════════════════════
+     SIDEBAR
+════════════════════════════════════ -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="logo-sq">H</div>
+    <div class="logo-txt">
+      <span class="logo-main">HITMS</span>
+      <span class="logo-sub">Checker</span>
+    </div>
+  </div>
+
+  <nav class="sb-nav">
+    <!-- Each .ni has data-page attribute — JS uses this to switch sections -->
+    <div class="ni active" data-page="dashboard">
+      <i class="ti ti-layout-dashboard" aria-hidden="true"></i>Dashboard
+    </div>
+    <div class="ni" data-page="compare">
+      <i class="ti ti-arrows-diff" aria-hidden="true"></i>Compare Text
+    </div>
+    <div class="ni" data-page="reports">
+      <i class="ti ti-file-description" aria-hidden="true"></i>Reports
+    </div>
+    <div class="ni" data-page="settings">
+      <i class="ti ti-settings" aria-hidden="true"></i>Settings
+    </div>
+  </nav>
+
+  <div class="sb-foot">
+    <div class="sb-tag"><span class="pulse"></span>Algorithm: LCS-DP</div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════
+     MAIN — all pages live here
+════════════════════════════════════ -->
+<main class="main">
+
+  <!-- ── PAGE: DASHBOARD ── -->
+  <div class="page visible" id="page-dashboard">
+    <div class="topbar">
+      <div>
+        <div class="pg-t">Dashboard</div>
+        <div class="pg-s">Text Similarity Analysis &nbsp;·&nbsp; LCS Dynamic Programming</div>
+      </div>
+      <div class="abadge">DP-LCS v2.0</div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="ch"><span class="cl">Similarity Score</span><span class="ci ci-b"><i class="ti ti-search" aria-hidden="true"></i></span></div>
+        <div class="meter"><svg viewBox="0 0 84 84"><circle class="mbg" cx="42" cy="42" r="33"/><circle class="mf" id="mSim" cx="42" cy="42" r="33" style="stroke:#2563eb"/></svg><div class="mv" id="vSim">0%</div></div>
+        <span class="stag" id="tSim">Awaiting Input</span>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="cl">Match Level</span><span class="ci ci-t"><i class="ti ti-shield-check" aria-hidden="true"></i></span></div>
+        <div class="meter"><svg viewBox="0 0 84 84"><circle class="mbg" cx="42" cy="42" r="33"/><circle class="mf" id="mPlg" cx="42" cy="42" r="33" style="stroke:#0d9488"/></svg><div class="mv mv-sm" id="vPlg">—</div></div>
+        <span class="stag" id="tPlg">Not Analyzed</span>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="cl">Word Count</span><span class="ci ci-p"><i class="ti ti-chart-line" aria-hidden="true"></i></span></div>
+        <div class="meter"><svg viewBox="0 0 84 84"><circle class="mbg" cx="42" cy="42" r="33"/><circle class="mf" id="mWrd" cx="42" cy="42" r="33" style="stroke:#7c3aed"/></svg><div class="mv mv-sm" id="vWrd">0</div></div>
+        <span class="stag" id="tWrd">Total Words</span>
+      </div>
+    </div>
+
+    <div class="formula">
+      <span class="f-badge"><i class="ti ti-math-function" aria-hidden="true"></i>&nbsp;Similarity Formula</span>
+      <span class="f-eq">Similarity % = <b>( 2 × LCS_length )</b> / ( |A| + |B| ) × 100</span>
+      <span class="f-badge" style="background:#f0fdfa;color:#0f6e56;border-color:rgba(13,148,136,.25)">Sørensen–Dice Coefficient</span>
+    </div>
+
+    <div>
+      <div class="sec-t">Quick Start</div>
+      <div class="sec-s">Click <strong>Compare Text</strong> in the sidebar to enter your documents, then view results in <strong>Reports</strong></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:14px;display:flex;align-items:center;gap:10px">
+        <span style="width:36px;height:36px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-arrows-diff" style="font-size:16px;color:#2563eb" aria-hidden="true"></i></span>
+        <div><div style="font-size:11px;font-weight:600;color:#0f172a">Compare Text</div><div style="font-size:10px;color:#94a3b8;margin-top:1px">Paste or upload docs</div></div>
+      </div>
+      <div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:14px;display:flex;align-items:center;gap:10px">
+        <span style="width:36px;height:36px;border-radius:8px;background:#f0fdfa;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-analyze" style="font-size:16px;color:#0d9488" aria-hidden="true"></i></span>
+        <div><div style="font-size:11px;font-weight:600;color:#0f172a">Run Analysis</div><div style="font-size:10px;color:#94a3b8;margin-top:1px">LCS-DP algorithm</div></div>
+      </div>
+      <div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:14px;display:flex;align-items:center;gap:10px">
+        <span style="width:36px;height:36px;border-radius:8px;background:#f5f3ff;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-file-description" style="font-size:16px;color:#7c3aed" aria-hidden="true"></i></span>
+        <div><div style="font-size:11px;font-weight:600;color:#0f172a">View Reports</div><div style="font-size:10px;color:#94a3b8;margin-top:1px">Full results &amp; highlights</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: COMPARE TEXT ── -->
+  <div class="page" id="page-compare">
+    <div class="topbar">
+      <div>
+        <div class="pg-t">Compare Text</div>
+        <div class="pg-s">Paste documents · Upload .txt · Live word &amp; character tracking</div>
+      </div>
+      <div class="abadge">DP-LCS v2.0</div>
+    </div>
+
+    <div class="panels">
+      <div class="panel">
+        <div class="ph">
+          <div class="plbl"><span class="dot dot-b"></span>Document A</div>
+          <label class="upbtn"><i class="ti ti-upload" aria-hidden="true"></i>Upload .txt<input type="file" accept=".txt" id="upA" hidden></label>
+        </div>
+        <textarea id="tA" placeholder="Enter or paste your first document here..."></textarea>
+        <div class="pmeta">Words:&nbsp;<b id="wA">0</b>&nbsp;&nbsp;Chars:&nbsp;<b id="cA">0</b></div>
+      </div>
+      <div class="panel">
+        <div class="ph">
+          <div class="plbl"><span class="dot dot-t"></span>Document B</div>
+          <label class="upbtn"><i class="ti ti-upload" aria-hidden="true"></i>Upload .txt<input type="file" accept=".txt" id="upB" hidden></label>
+        </div>
+        <textarea id="tB" placeholder="Enter or paste your second document here..."></textarea>
+        <div class="pmeta">Words:&nbsp;<b id="wB">0</b>&nbsp;&nbsp;Chars:&nbsp;<b id="cB">0</b></div>
+      </div>
+    </div>
+
+    <div class="acts">
+      <button class="btn-check" id="chkBtn">
+        <i class="ti ti-analyze" aria-hidden="true"></i>Check Similarity
+      </button>
+      <button class="btn-clear" id="clrBtn">Clear All</button>
+    </div>
+
+    <div id="compareMsg" style="text-align:center;font-size:11px;color:#94a3b8;padding:4px 0">
+      After checking similarity, view full results in the <strong>Reports</strong> section
+    </div>
+  </div>
+
+  <!-- ── PAGE: REPORTS ── -->
+  <div class="page" id="page-reports">
+    <div class="topbar">
+      <div>
+        <div class="pg-t">Reports</div>
+        <div class="pg-s">LCS analysis results · Highlighted comparison · Statistics</div>
+      </div>
+      <div id="repBadge" class="abadge">No data yet</div>
+    </div>
+
+    <!-- Word/char stat row -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-lbl">Doc A Words</div>
+        <div class="stat-val" id="rWA">0</div>
+        <div class="stat-sub">Document A</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Doc B Words</div>
+        <div class="stat-val" id="rWB">0</div>
+        <div class="stat-sub">Document B</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Doc A Chars</div>
+        <div class="stat-val" id="rCA">0</div>
+        <div class="stat-sub">Characters</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Doc B Chars</div>
+        <div class="stat-val" id="rCB">0</div>
+        <div class="stat-sub">Characters</div>
+      </div>
+    </div>
+
+    <!-- Score cards (mirrored from dashboard, updated on analysis) -->
+    <div class="cards">
+      <div class="card">
+        <div class="ch"><span class="cl">Similarity Score</span><span class="ci ci-b"><i class="ti ti-search" aria-hidden="true"></i></span></div>
+        <div class="meter"><svg viewBox="0 0 84 84"><circle class="mbg" cx="42" cy="42" r="33"/><circle class="mf" id="rMSim" cx="42" cy="42" r="33" style="stroke:#2563eb"/></svg><div class="mv" id="rVSim">0%</div></div>
+        <span class="stag" id="rTSim">No analysis run</span>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="cl">Match Level</span><span class="ci ci-t"><i class="ti ti-shield-check" aria-hidden="true"></i></span></div>
+        <div class="meter"><svg viewBox="0 0 84 84"><circle class="mbg" cx="42" cy="42" r="33"/><circle class="mf" id="rMPlg" cx="42" cy="42" r="33" style="stroke:#0d9488"/></svg><div class="mv mv-sm" id="rVPlg">—</div></div>
+        <span class="stag" id="rTPlg">Not Analyzed</span>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="cl">LCS Length</span><span class="ci ci-p"><i class="ti ti-binary-tree" aria-hidden="true"></i></span></div>
+        <div class="meter"><svg viewBox="0 0 84 84"><circle class="mbg" cx="42" cy="42" r="33"/><circle class="mf" id="rMWrd" cx="42" cy="42" r="33" style="stroke:#7c3aed"/></svg><div class="mv mv-sm" id="rVWrd">0</div></div>
+        <span class="stag" id="rTWrd">Matched chars</span>
+      </div>
+    </div>
+
+    <!-- Result breakdown -->
+    <div class="rg">
+      <div class="rc rc-dark">
+        <div style="text-align:center">
+          <div class="bscore" id="rBigPct">—</div>
+          <div class="bsub">Similarity Score</div>
+          <div style="text-align:center"><span class="mbadge" id="rMBadge">Run analysis first</span></div>
+        </div>
+        <div class="rstats">
+          <div class="rs"><span class="rs-l">LCS Length</span><span class="rs-v" id="rLcs">0</span></div>
+          <div class="rs"><span class="rs-l">Matched Chars</span><span class="rs-v" id="rMch">0</span></div>
+          <div class="rs"><span class="rs-l">Doc A Length</span><span class="rs-v" id="rDLA">0</span></div>
+          <div class="rs"><span class="rs-l">Doc B Length</span><span class="rs-v" id="rDLB">0</span></div>
+        </div>
+      </div>
+      <div class="rc">
+        <div class="rc-title">Common subsequence found (LCS output)</div>
+        <div class="lcs-box" id="rLcsBox"><span style="color:#94a3b8;font-style:italic">Go to Compare Text, run analysis, then return here</span></div>
+        <div class="lcs-meta" id="rLcsMeta"></div>
+      </div>
+    </div>
+
+    <!-- Highlighted comparison -->
+    <div class="hlp">
+      <div class="rc-title" style="margin-bottom:10px">Highlighted text comparison</div>
+      <div class="hg">
+        <div class="hbox">
+          <div class="hlbl"><span class="dot dot-b"></span>Document A — matched regions highlighted</div>
+          <div class="hcontent" id="rHlA"><span style="color:#94a3b8;font-style:italic">No data yet</span></div>
+        </div>
+        <div class="hbox">
+          <div class="hlbl"><span class="dot dot-t"></span>Document B — matched regions highlighted</div>
+          <div class="hcontent" id="rHlB"><span style="color:#94a3b8;font-style:italic">No data yet</span></div>
+        </div>
+      </div>
+      <div class="legend">
+        <span class="leg"><span class="ldot ldot-m"></span>Matched text (in LCS)</span>
+        <span class="leg"><span class="ldot ldot-u"></span>Unique text</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: SETTINGS ── -->
+  <div class="page" id="page-settings">
+    <div class="topbar">
+      <div>
+        <div class="pg-t">Settings</div>
+        <div class="pg-s">Project info · Team members · Algorithm configuration</div>
+      </div>
+      <div class="abadge">HITMS 2026</div>
+    </div>
+
+    <div class="settings-wrap">
+
+      <!-- Header banner -->
+      <div class="settings-header">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <i class="ti ti-school" style="font-size:20px;color:rgba(255,255,255,.7)" aria-hidden="true"></i>
+          <div class="settings-title">Analysis of Algorithms — HITMS</div>
+        </div>
+        <div class="settings-sub">Smart Text Similarity Checker &nbsp;·&nbsp; Semester Project &nbsp;·&nbsp; 2026</div>
+      </div>
+
+      <!-- Team members -->
+      <div>
+        <div class="sec-t" style="margin-bottom:10px">Team Members</div>
+        <div class="team-grid">
+
+          <!-- Member 1: Fasiha -->
+          <div class="member-card">
+            <div class="avatar av-blue">FA</div>
+            <div>
+              <div class="member-name">Fasiha Afridi</div>
+              <div class="member-role">BS Software Engineering</div>
+            </div>
+            <span class="member-badge">24BSSW026</span>
+            <div class="info-rows">
+              <div class="info-row">
+                <span class="info-lbl"><i class="ti ti-id-badge" style="font-size:11px;vertical-align:-1px;margin-right:3px" aria-hidden="true"></i>Roll No.</span>
+                <span class="info-val">24BSSW026</span>
+              </div>
+              <div class="info-row">
+                <span class="info-lbl"><i class="ti ti-book" style="font-size:11px;vertical-align:-1px;margin-right:3px" aria-hidden="true"></i>Program</span>
+                <span class="info-val">BSSW</span>
+              </div>
+              <div class="info-row">
+                <span class="info-lbl"><i class="ti ti-calendar" style="font-size:11px;vertical-align:-1px;margin-right:3px" aria-hidden="true"></i>Batch</span>
+                <span class="info-val">2024</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Member 2: Uzair -->
+          <div class="member-card">
+            <div class="avatar av-teal">UK</div>
+            <div>
+              <div class="member-name">Uzair Khan</div>
+              <div class="member-role">BS Software Engineering</div>
+            </div>
+            <span class="member-badge">24BSSW024</span>
+            <div class="info-rows">
+              <div class="info-row">
+                <span class="info-lbl"><i class="ti ti-id-badge" style="font-size:11px;vertical-align:-1px;margin-right:3px" aria-hidden="true"></i>Roll No.</span>
+                <span class="info-val">24BSSW024</span>
+              </div>
+              <div class="info-row">
+                <span class="info-lbl"><i class="ti ti-book" style="font-size:11px;vertical-align:-1px;margin-right:3px" aria-hidden="true"></i>Program</span>
+                <span class="info-val">BSSW</span>
+              </div>
+              <div class="info-row">
+                <span class="info-lbl"><i class="ti ti-calendar" style="font-size:11px;vertical-align:-1px;margin-right:3px" aria-hidden="true"></i>Batch</span>
+                <span class="info-val">2024</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Project info card -->
+      <div class="project-card">
+        <div class="proj-title"><i class="ti ti-code" aria-hidden="true"></i>Project Configuration</div>
+        <div class="proj-grid">
+          <div class="proj-item"><div class="proj-key">Algorithm</div><div class="proj-val">LCS-DP</div></div>
+          <div class="proj-item"><div class="proj-key">Complexity</div><div class="proj-val">O(m × n)</div></div>
+          <div class="proj-item"><div class="proj-key">Version</div><div class="proj-val">v2.0</div></div>
+          <div class="proj-item"><div class="proj-key">Language</div><div class="proj-val">Vanilla JS</div></div>
+          <div class="proj-item"><div class="proj-key">Input limit</div><div class="proj-val">1,200 chars</div></div>
+          <div class="proj-item"><div class="proj-key">Year</div><div class="proj-val">2026</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="foot">© 2026 HITMS Student Project — Analysis of Algorithms &nbsp;·&nbsp; LCS Dynamic Programming</div>
+
+</main>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   HITMS INTERACTIVE SIDEBAR NAVIGATION
+   ── Vanilla JavaScript only ──
+
+   HOW IT WORKS:
+   1. All .ni items have data-page="<id>" attribute
+   2. Clicking a nav item calls showPage(pageId)
+   3. showPage() hides all .page divs, shows the target,
+      then triggers the CSS fade/slide via requestAnimationFrame
+   4. Active state is toggled on .ni elements
+════════════════════════════════════════════════════════ */
+
+const CIRC = 2 * Math.PI * 33; // circumference for r=33
+
+/* ── State stored globally so Reports can read it ── */
+let state = {
+  simPct: 0, lcsStr: '', lcsLen: 0,
+  aWords: 0, bWords: 0, aChars: 0, bChars: 0,
+  matchLevel: 'low', analyzed: false
+};
+
+/* ── Meter helper: animates SVG circle ── */
+function setMeter(id, pct) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  c.style.strokeDasharray = CIRC;
+  c.style.strokeDashoffset = CIRC - (Math.min(100, Math.max(0, pct)) / 100) * CIRC;
+}
+
+/* ── Page switching with fade/slide transition ── */
+function showPage(pageId) {
+  /* Hide all pages instantly (no flash) */
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('visible');
+    p.style.display = 'none';
+    p.style.opacity = '0';
+    p.style.transform = 'translateY(10px)';
+  });
+
+  /* Update active nav item */
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  const activeNav = document.querySelector(`.ni[data-page="${pageId}"]`);
+  if (activeNav) activeNav.classList.add('active');
+
+  /* Show target page — use rAF for smooth CSS transition */
+  const target = document.getElementById('page-' + pageId);
+  if (!target) return;
+  target.style.display = 'flex';
+
+  /* If navigating to Reports, sync the latest results */
+  if (pageId === 'reports') syncReports();
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      target.style.opacity = '1';
+      target.style.transform = 'translateY(0)';
+    });
+  });
+}
+
+/* ── Wire up sidebar nav buttons ── */
+document.querySelectorAll('.ni').forEach(item => {
+  item.addEventListener('click', function () {
+    const page = this.getAttribute('data-page');
+    showPage(page);
+  });
+});
+
+/* ════════════════════════════════════════════════════════
+   LCS ALGORITHM — Dynamic Programming
+   dp[i][j] = LCS length of A[0..i-1] and B[0..j-1]
+   Recurrence:
+     A[i-1]===B[j-1] → dp[i][j] = dp[i-1][j-1]+1
+     else             → dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+════════════════════════════════════════════════════════ */
+function computeLCS(a, b) {
+  const A = a.slice(0, 1200), B = b.slice(0, 1200);
+  const M = A.length, N = B.length;
+  if (!M || !N) return { str: '', len: 0 };
+  const dp = new Int32Array((M + 1) * (N + 1));
+  for (let i = 1; i <= M; i++)
+    for (let j = 1; j <= N; j++)
+      if (A[i-1] === B[j-1]) dp[i*(N+1)+j] = dp[(i-1)*(N+1)+(j-1)] + 1;
+      else dp[i*(N+1)+j] = Math.max(dp[(i-1)*(N+1)+j], dp[i*(N+1)+(j-1)]);
+  let s = '', i = M, j = N;
+  while (i > 0 && j > 0) {
+    if (A[i-1] === B[j-1]) { s = A[i-1] + s; i--; j--; }
+    else if (dp[(i-1)*(N+1)+j] > dp[i*(N+1)+(j-1)]) i--;
+    else j--;
+  }
+  return { str: s, len: dp[M*(N+1)+N] };
+}
+
+/* ── Escape HTML ── */
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── Build highlighted HTML: matched chars get tok-match class ── */
+function highlight(text, lcs) {
+  if (!lcs || !text) return esc(text);
+  let html = '', li = 0, mb = '', ub = '';
+  const fm = () => { if (mb) { html += `<span class="tok-match">${esc(mb)}</span>`; mb = ''; } };
+  const fu = () => { if (ub) { html += esc(ub); ub = ''; } };
+  for (let k = 0; k < text.length; k++) {
+    const ch = text[k];
+    if (li < lcs.length && ch === lcs[li]) { fu(); mb += ch; li++; }
+    else { fm(); ub += ch; }
+  }
+  fm(); fu();
+  return html;
+}
+
+/* ── Word count helper ── */
+function cw(s) { return s.trim() === '' ? 0 : s.trim().split(/\s+/).length; }
+
+/* ── Update live meta (Compare Text page) ── */
+function upMeta() {
+  const a = document.getElementById('tA').value;
+  const b = document.getElementById('tB').value;
+  document.getElementById('wA').textContent = cw(a);
+  document.getElementById('cA').textContent = a.length;
+  document.getElementById('wB').textContent = cw(b);
+  document.getElementById('cB').textContent = b.length;
+  const tw = cw(a) + cw(b);
+  /* Also update dashboard word meter */
+  document.getElementById('vWrd').textContent = tw;
+  document.getElementById('tWrd').textContent = tw + ' Total Words';
+  setMeter('mWrd', Math.min(100, (tw / 400) * 100));
+}
+
+/* ── Match level classifier ── */
+function getLevel(p) {
+  if (p < 30) return { l: 'Low Match', c: 'low' };
+  if (p < 60) return { l: 'Moderate Match', c: 'mod' };
+  return { l: 'High Match', c: 'hi' };
+}
+
+/* ── Run similarity check ── */
+function runCheck() {
+  const a = document.getElementById('tA').value.trim();
+  const b = document.getElementById('tB').value.trim();
+  if (!a || !b) { alert('Please enter text in both Document A and Document B.'); return; }
+
+  const btn = document.getElementById('chkBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin .8s linear infinite"></i>Analyzing…';
+
+  setTimeout(() => {
+    const { str, len } = computeLCS(a, b);
+    const sim = (2 * len) / (a.length + b.length) * 100;
+    const sr = Math.round(sim * 10) / 10;
+    const lv = getLevel(sim);
+
+    /* ── Save to global state ── */
+    state = {
+      simPct: sr, lcsStr: str, lcsLen: len,
+      matchLevel: lv.c, matchLabel: lv.l, analyzed: true,
+      aWords: cw(a), bWords: cw(b), aChars: a.length, bChars: b.length,
+      textA: a, textB: b
+    };
+
+    /* ── Update Dashboard meters ── */
+    setMeter('mSim', sr);
+    document.getElementById('vSim').textContent = sr.toFixed(1) + '%';
+    const ts = document.getElementById('tSim');
+    ts.textContent = lv.l; ts.className = 'stag stag-' + lv.c;
+    setMeter('mPlg', sr);
+    document.getElementById('vPlg').textContent = lv.l.split(' ')[0];
+    const tp = document.getElementById('tPlg');
+    tp.textContent = sr.toFixed(1) + '% Similar'; tp.className = 'stag stag-done';
+
+    /* ── Show success message ── */
+    const msg = document.getElementById('compareMsg');
+    msg.innerHTML = `<span style="color:#0d9488;font-weight:600">✓ Analysis complete — ${sr.toFixed(1)}% similarity detected.</span> View full results in <strong>Reports</strong>`;
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-analyze" aria-hidden="true"></i>Check Similarity';
+  }, 80);
+}
+
+/* ── Sync Reports page with latest state ── */
+function syncReports() {
+  if (!state.analyzed) return; /* Nothing to show yet */
+
+  const { simPct, lcsStr, lcsLen, matchLabel, matchLevel,
+          aWords, bWords, aChars, bChars, textA, textB } = state;
+  const lv = { l: matchLabel, c: matchLevel };
+
+  /* Badge in topbar */
+  const rb = document.getElementById('repBadge');
+  if (rb) rb.textContent = simPct.toFixed(1) + '% Similarity';
+
+  /* Stat row */
+  document.getElementById('rWA').textContent = aWords;
+  document.getElementById('rWB').textContent = bWords;
+  document.getElementById('rCA').textContent = aChars;
+  document.getElementById('rCB').textContent = bChars;
+
+  /* Score cards */
+  setMeter('rMSim', simPct);
+  document.getElementById('rVSim').textContent = simPct.toFixed(1) + '%';
+  const rts = document.getElementById('rTSim');
+  rts.textContent = lv.l; rts.className = 'stag stag-' + lv.c;
+  setMeter('rMPlg', simPct);
+  document.getElementById('rVPlg').textContent = lv.l.split(' ')[0];
+  const rtp = document.getElementById('rTPlg');
+  rtp.textContent = simPct.toFixed(1) + '% Similar'; rtp.className = 'stag stag-done';
+  setMeter('rMWrd', Math.min(100, (lcsLen / (aChars || 1)) * 100));
+  document.getElementById('rVWrd').textContent = lcsLen;
+  document.getElementById('rTWrd').textContent = 'matched chars';
+
+  /* Big score card */
+  document.getElementById('rBigPct').textContent = simPct.toFixed(1) + '%';
+  const mb = document.getElementById('rMBadge');
+  mb.textContent = lv.l; mb.className = 'mbadge mbadge-' + lv.c;
+  document.getElementById('rLcs').textContent = lcsLen;
+  document.getElementById('rMch').textContent = lcsLen;
+  document.getElementById('rDLA').textContent = aChars;
+  document.getElementById('rDLB').textContent = bChars;
+
+  /* LCS output */
+  const lb = document.getElementById('rLcsBox');
+  if (lcsStr.length > 0) {
+    lb.textContent = lcsStr.length > 350 ? lcsStr.slice(0, 350) + '…' : lcsStr;
+    document.getElementById('rLcsMeta').textContent =
+      'Matched Characters: ' + lcsLen + ' | LCS output (first 350 chars shown)';
+  } else {
+    lb.innerHTML = '<span style="color:#94a3b8;font-style:italic">No common subsequence found.</span>';
+  }
+
+  /* Highlighted comparison */
+  document.getElementById('rHlA').innerHTML = highlight(textA, lcsStr);
+  document.getElementById('rHlB').innerHTML = highlight(textB, lcsStr);
+}
+
+/* ── Live meta update ── */
+document.getElementById('tA').addEventListener('input', upMeta);
+document.getElementById('tB').addEventListener('input', upMeta);
+
+/* ── Check button ── */
+document.getElementById('chkBtn').addEventListener('click', runCheck);
+
+/* ── Clear button ── */
+document.getElementById('clrBtn').addEventListener('click', () => {
+  document.getElementById('tA').value = '';
+  document.getElementById('tB').value = '';
+  upMeta();
+  state.analyzed = false;
+  setMeter('mSim', 0); setMeter('mPlg', 0); setMeter('mWrd', 0);
+  document.getElementById('vSim').textContent = '0%';
+  document.getElementById('vPlg').textContent = '—';
+  document.getElementById('tSim').className = 'stag';
+  document.getElementById('tSim').textContent = 'Awaiting Input';
+  document.getElementById('tPlg').className = 'stag';
+  document.getElementById('tPlg').textContent = 'Not Analyzed';
+  document.getElementById('compareMsg').innerHTML =
+    'After checking similarity, view full results in the <strong>Reports</strong> section';
+});
+
+/* ── File upload handlers ── */
+document.getElementById('upA').addEventListener('change', function () {
+  const f = this.files[0]; if (!f) return;
+  new FileReader().onload = e => { document.getElementById('tA').value = e.target.result; upMeta(); };
+  const r = new FileReader(); r.onload = e => { document.getElementById('tA').value = e.target.result; upMeta(); };
+  r.readAsText(f, 'UTF-8'); this.value = '';
+});
+document.getElementById('upB').addEventListener('change', function () {
+  const r = new FileReader(); r.onload = e => { document.getElementById('tB').value = e.target.result; upMeta(); };
+  r.readAsText(this.files[0], 'UTF-8'); this.value = '';
+});
+
+/* ── Spin keyframe for loading icon ── */
+const ss = document.createElement('style');
+ss.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(ss);
+
+/* ── Pre-load sample text and auto-run analysis ── */
+window.addEventListener('load', () => {
+  document.getElementById('tA').value =
+    `Machine learning is a subset of artificial intelligence that enables systems to learn and improve from experience without being explicitly programmed. It focuses on developing computer programs that can access data and use it to learn for themselves. The process begins with observations or data, such as examples, direct experience, or instruction, so that computers can learn to look for patterns in data and make better decisions in the future.`;
+  document.getElementById('tB').value =
+    `Artificial intelligence includes machine learning as one of its key subfields, allowing systems to learn from experience and improve performance without explicit programming. The goal is to develop algorithms that can process data, recognize patterns, and make intelligent decisions. Machine learning systems rely on training data — examples, observations, and direct experience — to find patterns and optimize future decisions automatically.`;
+  upMeta();
+  setTimeout(runCheck, 600);
+});
+
+/* ── Init first page ── */
+showPage('dashboard');
+</script>
